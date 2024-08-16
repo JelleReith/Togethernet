@@ -1,18 +1,21 @@
 #include <Arduino.h>
+#include "global_variables.h"
+#include "global_variables_init.h"
+#include "helperfunctions.h"
+#include "mqtt.h"
 
-// put function declarations here:
-int myFunction(int, int);
+void setup(){
+  Serial.begin(115200);
+  MQTT_init();
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  pinMode(10, INPUT);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop(){
+ handleMQTT();
+ pushMQTT();
+ delay(100);
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+
+
