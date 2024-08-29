@@ -1,39 +1,46 @@
+Hi all,
+Let me try to explain how this all works and what it can do;
 
-This directory is intended for project header files.
+Most things that we want to connect to each other can work with this software and with the esp32's
+The main limitation that this software has is that it can only send numbers from one studio to another studio, no text, no images, no video etc.
+The ESP32 is a microcontroller. Sjef brought a few ESP32-S3 devkit's to you Rotterdam. There are a number of different versions of the esp32 chip and a number of different boards,
+The one you guys have on the studio is the ESP32-s3-devkit-c1 -> https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html
+The esp32 can be programmed via VSCode -> https://code.visualstudio.com/ 
+To be able to upload code to the ESP32 the extension platformio needs to be installed -> https://platformio.org/install/ide?install=vscode
+After installing platformio you need to open the folder 'Togethernet' in vscode.There is a button "open project folder" I think.
+Once the folder is opened you can upload the code by using the upload button on the bottom.
 
-A header file is a file containing C declarations and macro definitions
-to be shared between several project source files. You request the use of a
-header file in your project source file (C, C++, etc) located in `src` folder
-by including it, with the C preprocessing directive `#include'.
+The ESP32 will connect to the internet and the data is sent via the MQTT protocol. MQTT requires another service to work.
+The service that I'm using is shiftr.io . Shiftr.io is responisble for making the connection between different ESP32's.
+The MQTT protocol allows a device (esp32 in this case) to publish and subscribe to channels/adresses like "/swsws69_coffeepot_temperature" or "/extrapractice_lunchbutton_state"
+When a device is subscribed to a address it will receive all the data that is published to that address by other devices. The MQTT protocol works on 
+microcontrollers like the EPS32/ARDUINO, on javascript, ruby and processing -> https://www.shiftr.io/docs/manuals
 
-```src/main.c
+The code that I wrote works like a framework for all the devices but it needs to be adjusted to work with the specific sensors and actuators that we want to use,
+in the file helperfunctions.cpp there are two functions that need to be changed for it to work with some sensor/actuator:
 
-#include "header.h"
+If the device is an input;
+initDeviceSensorInput() needs to get the code to initialize some sensor. This function is executed when the esp32 boots and can be used to setup some sensor.
+handleDeviceSensorInpu() is exectuted every 10ms and should get some code to read out some sensor. It is important to map the sensor's values between 0 and 65535 
+If the device is an output;
+initDeviceOutput() same as input, but than for a output
+handleDeviceOutput() ...
 
-int main (void)
-{
- ...
-}
-```
 
-Including a header file produces the same results as copying the header file
-into each source file that needs it. Such copying would be time-consuming
-and error-prone. With a header file, the related declarations appear
-in only one place. If they need to be changed, they can be changed in one
-place, and programs that include the header file will automatically use the
-new version when next recompiled. The header file eliminates the labor of
-finding and changing all the copies as well as the risk that a failure to
-find one copy will result in inconsistencies within a program.
 
-In C, the usual convention is to give header files names that end with `.h'.
-It is most portable to use only letters, digits, dashes, and underscores in
-header file names, and at most one dot.
+Some rules to keep it organized
 
-Read more about using header files in official GCC documentation:
+we only send and read interger values
+values are a 16 bit number between 0 and 65535
+we send data every 500ms
+we use this naming scheme for the addresses: studioname_device_measurement e.g. swsws69_coffeepot_temperature or extrapractice_lunchbutton_state or extrapractice_emma_present
 
-* Include Syntax
-* Include Operation
-* Once-Only Headers
-* Computed Includes
 
-https://gcc.gnu.org/onlinedocs/cpp/Header-Files.html
+////////////////////////////////////////////////////////////
+      rename "credentials_example.h" to "credentials.h"
+      put valid keys in "credentials.h" 
+      IMPORTANT: do not put valid keys in "credentials_example.h", this file is public on github and we don't want people to know our wifi passwords
+////////////////////////////////////////////////////////////
+
+
+use "config.h" to setup the ESP32's
